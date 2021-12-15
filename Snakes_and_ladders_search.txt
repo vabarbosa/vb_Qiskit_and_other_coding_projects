@@ -1,0 +1,294 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+string ltrim(const string &);
+string rtrim(const string &);
+vector<string> split(const string &);
+
+/*
+ * Complete the 'quickestWayUp' function below.
+ *
+ * The function is expected to return an INTEGER.
+ * The function accepts following parameters:
+ *  1. 2D_INTEGER_ARRAY ladders
+ *  2. 2D_INTEGER_ARRAY snakes
+ */
+void FindPath(int n, vector<int> q);
+void Print(vector<int> q);
+int check(int num, vector<int> q);
+
+vector<int> ans_list;
+int checker= 0; 
+int ladderNum = 0;
+int snakeNum = 0;
+
+vector<vector<int>> board;
+vector<vector<int>> b(10, vector<int>(10, 0));
+int coord_int(int x, int y){
+    return (x*10)+(y+1);
+}
+vector<int> int_coord(int num){
+    vector<int> ans(2,0);
+    ans[0] = 9 - (num / 10);
+    ans[1] = (num % 10)-1;
+    if( ans[1] == -1 ) ans[1] = 9;
+    return ans;
+}
+int quickestWayUp(vector<vector<int>> ladders, vector<vector<int>> snakes) {
+    /*for(int i = 0; i < ladders.size(); i++){
+        int x = 9 - (ladders[i][0] / 10);
+        int y = (ladders[i][0] % 10)-1;
+        if( y == -1 ) y = 9; 
+        board[ x ][ y ] = ladders[i][1];
+        x = 9 - (ladders[i][1] / 10);
+        y = (ladders[i][1] % 10) - 1;
+        if( y == -1 ) y = 9;
+        board[ x ][ y ] = ladders[i][1];
+    }
+    for(int i = 0; i < snakes.size(); i++){
+        int x = 9 - (snakes[i][0] / 10);
+        int y = (snakes[i][0] % 10) - 1;
+        if( y == -1 ) y = 9;
+        board[ x ][ y ] = -snakes[i][1];
+        x = 9 - (snakes[i][1] / 10);
+        y = (snakes[i][1] % 10) - 1;
+        if( y == -1 ) y = 9;
+        board[ x ][ y ] = -snakes[i][1];
+    }
+    for(int i = 0; i < board.size(); i++){
+        for(int j = 0; j < board[i].size(); j++){
+            cout << board[i][j] << " ";
+        }
+        cout << endl ;
+    }
+    cout << coord_int(4,5) << endl;
+    vector<int> u = int_coord(97);
+    cout << u[0] << " " << u[1] << endl;
+    cout << "end" << endl;
+    b[9][0] = 1;*/
+    int n = 100;
+    board.resize(n, vector<int>(n, 0));
+    for(int i = 0; i < board.size()-1; i++){
+        int j = 1;
+        //cout << "i = " << i << endl;
+        while( (j != 7) && (j+i != board.size()) ){
+            board[i][i+j] = 1;
+            j++;
+            //cout << "j = " << j << endl;
+        }
+    }
+    ladderNum = ladders.size();
+    snakeNum = snakes.size();
+    for(int i = 0; i < ladders.size(); i++){
+        fill(board[ladders[i][0] - 1].begin(), board[ladders[i][0] - 1].end(), 0);
+        //board[ ladders[i][0] - 1 ][ ladders[i][1] - 1 ] = 2;
+        for(int j = 0; j < n; j++){
+            if(board[j][ladders[i][0] - 1] == 1){
+                board[j][ladders[i][0] - 1] = 0;
+                board[j][ladders[i][1] - 1] = 1;
+            }
+        }
+        
+    }
+    for(int i = 0; i < snakes.size(); i++){
+        fill(board[snakes[i][0] - 1].begin(), board[snakes[i][0] - 1].end(), 0);
+        //board[ snakes[i][0] - 1 ][ snakes[i][1] - 1 ] = -1;
+        for(int j = 0; j < n; j++){
+            if(board[j][snakes[i][0] - 1] == 1){
+                board[j][snakes[i][0] - 1] = 0;
+                board[j][snakes[i][1] - 1] = 1;
+            }
+            /*if(board[j][snakes[i][0] - 1] != 0){
+                board[j][snakes[i][0] - 1] = -1;
+            }
+            if(board[snakes[i][0] - 1][j] != 0){
+                board[snakes[i][0] - 1][j] = -1;
+            }*/
+        }
+    }
+    /*for(int i = 0; i < n; i++){
+        for(int j = 0; j < n; j++){
+            cout << board[i][j] << " ";
+        }
+        cout << endl;
+    }*/
+    int s = 1;
+    ans_list.resize(n, -1);
+    ans_list[s-1] = 0;
+    vector<int> q;
+    q.push_back(s);
+    
+    FindPath(n, q);
+    ans_list.erase(ans_list.begin()+s-1);
+    vector<int> ans;
+    //ans = ans_list;
+    int answer = ans_list[n-1];
+    ans_list.clear();
+    board.clear();
+
+    //cout << ans[n-1] <<endl;
+    //search(9, 0);
+    if(answer < 0)
+        return -1;
+    return answer;
+}
+
+int check(int num, vector<int> q){
+    for(int i = 0; i < q.size(); i++){
+        if(q[i] == num) 
+            return 0;
+    }       
+    return 1;
+}
+void FindPath(int n, vector<int> q){
+    if(q.size()*(n-ladderNum-snakeNum) == checker){
+        cout << checker << " , " << n*q.size() << " ;" << endl;
+    }else{
+        checker = 0;
+        for(int j = 0; j < q.size(); j++){
+            for(int i = 0; i < n; i++){
+                if( (board[q[j]-1][i] != 0) && (check(i+1, q) == 1) ){
+                    /*if(q[j] == 56)
+                        cout << ans_list[q[j]-1] << ", " << board[q[j]-1][i] << endl;*/
+                    if(board[q[j]-1][i] == 1) 
+                        ans_list[i] = abs(ans_list[q[j]-1])+1;
+                    /*else if(board[q[j]-1][i] == 2)
+                        ans_list[i] = ans_list[q[j]-1];
+                    else if(board[q[j]-1][i] == -1)
+                         ans_list[i] = -ans_list[q[j]-1]-1;
+                    if(i >= 93){
+                        cout << "ans_list[i]= " << ans_list[i] << endl;
+                        cout << "board[q[j]-1][i]= " << q[j]-1 << " " << i << " " << board[q[j]-1][i] << endl;        
+                    }*/
+
+                    q.push_back(i+1);
+                }else checker++;
+            }
+            checker = checker - ladderNum - snakeNum;
+            if(q.size() > 90){
+                Print(q);
+                cout << q.size()*(n-ladderNum-snakeNum) << " " << checker << endl;
+            }
+                             
+        }
+        FindPath(n, q);
+    }
+}
+
+void Print(vector<int> q){
+    cout << endl << "ans_list = ";
+    for(int i = 0; i < ans_list.size(); i++){
+        cout << ans_list[i] << "  ";
+    }
+    cout << endl << "q.size() = " << q.size() << " q = ";    
+    for(int i = 0; i < q.size(); i++){
+        cout << q[i] << "  ";
+    }
+    cout << endl; 
+}
+
+
+
+int main()
+{
+    ofstream fout(getenv("OUTPUT_PATH"));
+
+    string t_temp;
+    getline(cin, t_temp);
+
+    int t = stoi(ltrim(rtrim(t_temp)));
+
+    for (int t_itr = 0; t_itr < t; t_itr++) {
+        string n_temp;
+        getline(cin, n_temp);
+
+        int n = stoi(ltrim(rtrim(n_temp)));
+
+        vector<vector<int>> ladders(n);
+
+        for (int i = 0; i < n; i++) {
+            ladders[i].resize(2);
+
+            string ladders_row_temp_temp;
+            getline(cin, ladders_row_temp_temp);
+
+            vector<string> ladders_row_temp = split(rtrim(ladders_row_temp_temp));
+
+            for (int j = 0; j < 2; j++) {
+                int ladders_row_item = stoi(ladders_row_temp[j]);
+
+                ladders[i][j] = ladders_row_item;
+            }
+        }
+
+        string m_temp;
+        getline(cin, m_temp);
+
+        int m = stoi(ltrim(rtrim(m_temp)));
+
+        vector<vector<int>> snakes(m);
+
+        for (int i = 0; i < m; i++) {
+            snakes[i].resize(2);
+
+            string snakes_row_temp_temp;
+            getline(cin, snakes_row_temp_temp);
+
+            vector<string> snakes_row_temp = split(rtrim(snakes_row_temp_temp));
+
+            for (int j = 0; j < 2; j++) {
+                int snakes_row_item = stoi(snakes_row_temp[j]);
+
+                snakes[i][j] = snakes_row_item;
+            }
+        }
+
+        int result = quickestWayUp(ladders, snakes);
+
+        fout << result << "\n";
+    }
+
+    fout.close();
+
+    return 0;
+}
+
+string ltrim(const string &str) {
+    string s(str);
+
+    s.erase(
+        s.begin(),
+        find_if(s.begin(), s.end(), not1(ptr_fun<int, int>(isspace)))
+    );
+
+    return s;
+}
+
+string rtrim(const string &str) {
+    string s(str);
+
+    s.erase(
+        find_if(s.rbegin(), s.rend(), not1(ptr_fun<int, int>(isspace))).base(),
+        s.end()
+    );
+
+    return s;
+}
+
+vector<string> split(const string &str) {
+    vector<string> tokens;
+
+    string::size_type start = 0;
+    string::size_type end = 0;
+
+    while ((end = str.find(" ", start)) != string::npos) {
+        tokens.push_back(str.substr(start, end - start));
+
+        start = end + 1;
+    }
+
+    tokens.push_back(str.substr(start));
+
+    return tokens;
+}
