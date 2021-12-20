@@ -1,5 +1,5 @@
 # Qiskit_projects
-Coding projects 
+
 
 This repository contains applications of Grover's algorithm to solve certain elementary Python. The first is finding palindromes amongst four letters which could potentially be applied for Genome sequencing and the second is finding prime in a certain range. Both projects have their code based on Qiskit tutorials of Grover search algorithm and Quantum Counting algorithm. The attempt of this project is also to make the process of creating the ominous Quantum oracle a bit more intuitive.
 
